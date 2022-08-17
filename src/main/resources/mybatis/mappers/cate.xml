@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cate">
+	
+	<!-- 카테고리저장 -->
+	<insert id="insertCate" parameterType="com.javaex.vo.CateVo">
+		<selectKey keyProperty="cateNo" resultType="int" order="BEFORE">
+			select seq_category_no.nextval from dual
+		</selectKey>
+		
+		<![CDATA[
+			insert into category
+			values(#{cateNo}, 
+			       #{id},
+			       #{cateName}, 
+			       #{description},
+			       sysdate
+			)
+		]]>
+	</insert>
+	
+
+	<!-- 회원번호로 카테고리리스트 가져오기 (포스트 갯수도 같이 가져옴) -->
+	<select id="selectCateList" parameterType="string" resultType="com.javaex.vo.CateVo">
+		<![CDATA[
+			select c.cateNo, c.id, c.cateName, c.description, 
+				   to_char(c.regDate, 'YYYY/MM/DD') regDate, p.cnt
+			from category c, 
+     			 (select cateNo, count(*) cnt
+      			  from post
+      			  group by cateNo) p
+			where id = #{id}
+		    and c.cateNo = p.cateNo(+)
+			order by cateNo desc
+		]]>
+	</select>
+	
+	
+	<!-- 카테고리no 로 특정카테고리 정보 가져오기 (포스트 갯수도 같이 가져옴) -->
+	<select id="selectCate" parameterType="int" resultType="com.javaex.vo.CateVo">
+		<![CDATA[
+			select c.cateNo, c.id, c.cateName, c.description, 
+				   to_char(c.regDate, 'YYYY/MM/DD') regDate, p.cnt
+			from category c, 
+     			 (select cateNo, count(*) cnt
+      			  from post
+      			  group by cateNo) p
+			where c.cateNo = p.cateNo(+)
+		    and c.cateNo = #{cateNo}
+		]]>
+	</select>
+	
+	
+	
+	<!-- 카테고리삭제 -->
+	<delete id="deleteCate" parameterType="int" >
+		<![CDATA[
+			delete from category
+			where cateNo =#{cateNo}
+		]]>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="post">
+
+    <!-- 포스트 글저장 -->
+	<insert id="insertPost" parameterType="com.javaex.vo.PostVo">
+		<![CDATA[
+			insert into post
+			values(seq_post_no.nextval, 
+			       #{cateNo}, 
+			       #{postTitle},
+			       #{postContent},
+			       sysdate
+			)
+		]]>
+	</insert>
+
+
+    <!-- 특정 카테고리의 포스트 리스트 가져오기 -->
+	<select id="selectList" parameterType="int" resultType="com.javaex.vo.PostVo">
+		<![CDATA[
+			select 	c.id, 
+					p.postNo, 
+					p.cateNo, 
+					p.postTitle,
+			       	to_char(p.regDate, 'YYYY/MM/DD') regDate
+  			from category c, post p
+ 			where c.cateNo = p.cateNo
+ 			and p.cateNo = #{crtCateNo}
+  			order by postNo desc
+		]]>
+	</select>
+
+
+
+    <!-- 선택한 포스트 가져오기 -->
+	<select id="selectPost" parameterType="int" resultType="com.javaex.vo.PostVo">
+		<![CDATA[
+			select  u.userNo,
+			        u.id,
+			        u.userName,
+			        c.cateNo,
+			        c.cateName,
+			        p.postNo,
+			        p.postTitle,
+			        p.postContent,
+			        to_char(p.regDate, 'YYYY/MM/DD') regDate
+			from users u, blog b, category c, post p
+			where u.id = b.id
+			and b.id = c.id
+			and c.cateNo = p.cateNo
+			and p.postNo = #{crtPostNo}
+		]]>
+	</select>
+	
+	
+	<!-- 카테고리별 포스트 갯수 구하기:카테고리 삭제시 이용 -->
+	<select id="selectPostCnt" parameterType="int" resultType="int">
+		<![CDATA[
+			select count(*)
+			from post
+			where cateno = #{crtCateNo}
+		]]>
+	</select>
+	
+</mapper>
